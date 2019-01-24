@@ -11,6 +11,11 @@ class Connector(object):
     def __init__(self):
         """Initialize connector"""
         try:
+            self.proxies = {
+              'https': 'http://127.0.0.1:8080',
+              'http': 'http://127.0.0.1:8080'
+            }
+
             with open('config.yaml', 'r') as config_file:
                 self.config = load(config_file, Loader=Loader)
                 all_keys_in_config = [item in self.config and True for item in ['host', 'api_key', 'api_key2', 'user']]
@@ -20,7 +25,7 @@ class Connector(object):
 
                 # instantiate the DefectDojo api wrapper
                 self.dd_v1 = defectdojo.DefectDojoAPI(self.config['host'], self.config['api_key'], self.config['user'])
-                self.dd_v2 = defectdojo.DefectDojoAPI(self.config['host'], self.config['api_key2'], self.config['user'], api_version='v2')
+                self.dd_v2 = defectdojo.DefectDojoAPI(self.config['host'], self.config['api_key2'], self.config['user'], api_version='v2', proxies=self.proxies)
         except FileNotFoundError as fnf_error:
             print(fnf_error)
             exit()

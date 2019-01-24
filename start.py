@@ -1,106 +1,129 @@
 from defectdojo_api import defectdojo, connector
 import click
+from datetime import datetime, timedelta
+import requests
+import json
+import time
+
+NESSUS=1
 
 @click.group()
 def main():
     """CLI for Defect Dojo"""
     pass
 
-    # tool_types = dd_v1.list_tools()
-    #
-    # print(tool_types.data_json(pretty=True))
-    # exit()
-    # # instantiate the DefectDojo api wrapper
-    # dd_v1 = defectdojo.DefectDojoAPI(host, api_key, user, debug=False, api_version='v1')
-    # dd_v2 = defectdojo.DefectDojoAPI(host, api_key2, user, debug=False, api_version='v2')
-    #
-    # tool_types = dd_v1.list_tools()
-    #
-    # print(tool_types.data_json(pretty=True))
-    # exit()
-    # print(tool_types.data['results'])
-    # for type in tool_types.data['results']:
-    #     print(type['url'])
-    #     type_info = dd.list_tool_types(type['url'])
-    #     print(type_info.data_json(pretty=True))
-    #
-    #
-    #
-    #
-    #
-    # # TODO: Добавление новых проектов
-    # # TODO: Указание в конфигурационном файле путей к сканерам / id-ков проектов
-    #
-    #
-    #
-    #
-    #
-    # # If you need to disable certificate verification, set verify_ssl to False.
-    # # dd = defectdojo.DefectDojoAPI(host, api_key, user, verify_ssl=False
-    #
-    # # Create a product
-    # # prod_type = 1 #1 - Research and Development, product type
-    # # product = dd.create_product("API Product Test", "This is a detailed product description.", prod_type)
-    # #
-    # # if product.success:
-    # # # Get the product id
-    # # product_id = product.id()
-    # # print "Product successfully created with an id: " + str(product_id)
-    # #
-    # # #List Products
-    # # products = dd.list_products()
-    # #
-    # # if products.success:
-    # #     print(products.data_json(pretty=True))  # Decoded JSON object
-    # #
-    # # for product in products.data["objects"]:
-    # #     print(product['name'])  # Print the name of each product
-    # # else:
-    # #     print(products.message)
-    # print(tool_types.data['results'])
-    # for type in tool_types.data['results']:
-    #     print(type['url'])
-    #     type_info = dd.list_tool_types(type['url'])
-    #     print(type_info.data_json(pretty=True))
+@main.command()
+def update_scans():
+    """ Update all product scans
 
+    """
+    dojo_connector = connector.Connector()
+    products = dojo_connector.dd_v2.list_products()
 
+    for product in products.data["results"]:
+        engagements = dojo_connector.dd_v2.list_engagements(product_id=product['id'],
+                                                            eng_type="CI/CD")
 
+        # TODO: Add field that would connect Engagemnt Test and Product Tool
+        # TODO: lead_id - who is lead?
+        start_time = datetime.now()
+        for engagement in engagements.data["results"]:
+            tools = dojo_connector.dd_v2.list_tool_products(product_id=product['id'],
+                                                            description=engagement['name'])
+            tests = dojo_connector.dd_v2.list_tests(engagement_id=engagement['id'])
+            for tool in tools.data["results"]:
+                tool_configuration = dojo_connector.dd_v2.get_tool_configuration(tool['tool_configuration'])
 
+                if tool_configuration.data['tool_type'] == NESSUS:
+                    # TODO: add exception handling
+                    # TODO: separate to different function
+                    # TODO: Use tool description (or special field in future) to connect tool to the engagement
 
-    # TODO: Добавление новых проектов
-    # TODO: Указание в конфигурационном файле путей к сканерам / id-ков проектов
+                    request = requests.request(method='POST',
+                                                url="{}/scans/{}/export".format(
+                                                                        tool_configuration.data['configuration_url'],
+                                                                        tool['tool_project_id']),
+                                                headers={
+                                                    "accept": "application/json",
+                                                    "X-ApiKeys": tool_configuration.data['api_key']
+                                                },
+                                                verify=False,
+                                                # proxies=proxies,
+                                                data={"format":"nessus"})
 
+                    file_info = json.loads(request.text)
+                    loaded = False
+                    counter = 0
 
+                    while not loaded:
 
+                        request = requests.request(method='GET',
+                                                    url="{}/scans/{}/export/{}/status".format(
+                                                                            tool_configuration.data['configuration_url'],
+                                                                            tool['tool_project_id'],
+                                                                            str(file_info['file'])),
+                                                    headers={
+                                                        "accept": "application/json",
+                                                        "X-ApiKeys": tool_configuration.data['api_key']
+                                                    },
+                                                    verify=False)
 
+                        result = json.loads(request.text)
+                        if result['status'] == 'ready':
+                            loaded = True
+                            break
 
-    # If you need to disable certificate verification, set verify_ssl to False.
-    # dd = defectdojo.DefectDojoAPI(host, api_key, user, verify_ssl=False
+                        counter += 1
+                        if counter > 10:
+                            break
 
-    # Create a product
-    # prod_type = 1 #1 - Research and Development, product type
-    # product = dd.create_product("API Product Test", "This is a detailed product description.", prod_type)
-    #
-    # if product.success:
-    # # Get the product id
-    # product_id = product.id()
-    # print "Product successfully created with an id: " + str(product_id)
-    #
-    # #List Products
-    # products = dd.list_products()
-    #
-    # if products.success:
-    #     print(products.data_json(pretty=True))  # Decoded JSON object
-    #
-    # for product in products.data["objects"]:
-    #     print(product['name'])  # Print the name of each product
-    # else:
-    #     print(products.message)
+                        time.sleep(5)
+
+                    if not counter > 10:
+                        report = requests.request(method='GET',
+                                            url="{}/tokens/{}/download".format(
+                                                                    tool_configuration.data['configuration_url'],
+                                                                    file_info['token']),
+                                            headers={
+                                                "accept": "application/json",
+                                                "X-ApiKeys": tool_configuration.data['api_key']
+                                            },
+                                            verify=False)
+
+                        test = next((item for item in tests.data["results"]
+                                if "tool_" + str(tool["id"]) in item["tags"]), False)
+
+                        if not test:
+                            res = dojo_connector.dd_v2.upload_scan(engagement_id=engagement["id"],
+                                                            scan_type="Nessus Scan",
+                                                            active=True,
+                                                            scan_date=start_time.strftime("%Y-%m-%d"),
+                                                            minimum_severity="Info",
+                                                            close_old_findings=True,
+                                                            skip_duplicates=True,
+                                                            file=('NessusScan.nessus', report.text),
+                                                            tags=["tool_" + str(tool["id"])])
+                        else:
+                            res = dojo_connector.dd_v2.reupload_scan(test_id=test['id'],
+                                                            scan_type="Nessus Scan",
+                                                            file=('NessusScan.nessus', report.text),
+                                                            active=True,
+                                                            scan_date=start_time.strftime("%Y-%m-%d"))
+
 
 @main.command()
-@click.option('--name', prompt="Product name", help="Product name")
-@click.option('--description', prompt="Description", help="Product description")
-def product_add(name, description):
+def product_engagements_from_gitlab():
+    """ Load engagements of the product from Gitlab. Product - gitlab group, all
+    projects in it will be engagements in defectdojo
+
+    """
+    pass
+
+
+@main.command()
+# @click.option('--name', prompt="Product name", help="Product name")
+# @click.option('--description', prompt="Description", help="Product description")
+def product_add():
     """Add new product to Defect Dojo
 
     :param name: Product name
@@ -109,24 +132,25 @@ def product_add(name, description):
     """
 
     dojo_connector = connector.Connector()
-
-    product_type = 1 # TODO: How can we use it?
-    product = dojo_connector.dd_v2.create_product(name, description, product_type)
+    res = dojo_connector.dd_v2.get_engagement()
+    print(res.data_json(pretty=True))
+    # product_type = 1 # TODO: How can we use it?
+    # product = dojo_connector.dd_v2.create_product(name, description, product_type)
 
 # @click.option('--action', default='add_product', help='What you want to perform')
 
 # TODO: how to delete?
 @main.command()
-def product_delete_all():
+def engagement_delete_all():
     """Delete all products
 
     """
     dojo_connector = connector.Connector()
 
-    products = dojo_connector.dd_v1.list_products()
-    print(products.data_json(pretty=True))
-    for product in products:
-        dojo_connector.dd_v1.delete
+    engagements = dojo_connector.dd_v2.list_engagements(eng_type="CI/CD")
+
+    for engagement in engagements.data["results"]:
+        dojo_connector.dd_v2.delete_engagement(engagement["id"])
 
 if __name__ == '__main__':
     main()
