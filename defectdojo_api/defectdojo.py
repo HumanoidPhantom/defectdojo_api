@@ -1155,8 +1155,8 @@ class DefectDojoAPI(object):
         if not params:
             params = {}
 
-        # if data:
-        #     data = json.dumps(data)
+        if data and not files:
+            data = json.dumps(data)
 
         headers = {
             'User-Agent': self.user_agent,
@@ -1168,7 +1168,7 @@ class DefectDojoAPI(object):
             headers['Content-Type'] = 'application/json'
 
         if self.proxies:
-            proxies=self.proxies
+            proxies = self.proxies
         else:
             proxies = {}
 
@@ -1177,15 +1177,25 @@ class DefectDojoAPI(object):
                 print(method + ' ' + url)
                 print(params)
 
-            response = requests.request(method=method, url=self.host + url, params=params, data=data, files=files, headers=headers,
-                                        timeout=self.timeout, verify=self.verify_ssl, cert=self.cert, proxies=proxies)
+            response = requests.request(
+                method=method,
+                url=self.host + url,
+                params=params,
+                data=data,
+                files=files,
+                headers=headers,
+                timeout=self.timeout,
+                verify=self.verify_ssl,
+                cert=self.cert,
+                proxies=proxies
+            )
 
             if self.debug:
                 print(response.status_code)
                 print(response.text)
 
             try:
-                if response.status_code == 201: #Created new object
+                if response.status_code == 201:  # Created new object
                     try:
                         object_id = response.headers["Location"].split('/')
                         key_id = object_id[-2]
