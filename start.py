@@ -58,7 +58,7 @@ def update_scans():
                             active=True,
                             scan_date=start_time.strftime("%Y-%m-%d"),
                             minimum_severity="Info",
-                            close_old_findings=True,
+                            close_old_findings=False,
                             skip_duplicates=True,
                             file=(results['file_name'], results['report']),
                             tags=["tool_" + str(tool['id'])]
