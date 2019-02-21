@@ -169,21 +169,31 @@ class Appscreener(Scanner):
                 )
                 path_line = full_source_code['name'].rsplit(':', 1)
                 line_num = 0
+                vuln_lines_count = 0
                 if len(path_line) > 1:
-                    line_num = int(path_line[-1].rsplit('#', 1)[0])
+                    lines_split = path_line[-1].rsplit('#', 1)
+                    line_num = int(lines_split[0])
+                    if len(lines_split) > 1:
+                        vuln_lines_count = int(lines_split[1]) - line_num + 1
+                    else:
+                        vuln_lines_count = 1
                 if line_num != 0:
                     lines = full_source_code['code'].splitlines()
                     begin_at = line_num - 5 if line_num > 5 else 1
-                    code = lines[begin_at-1:line_num+5]
+                    # Select vulnerable lines plus
+                    # 5 lines before and after
+                    code = lines[begin_at-1:line_num+(vuln_lines_count)+5]
                     for l_ind, line in enumerate(code):
-                        line_ending = "...[LINE WAS CUT OFF]..." if len(line) > 150 else ""
-                        if l_ind + begin_at == line_num:
-                            code[l_ind] = "<{}.> {}".format(
+                        line_ending = "...[LINE WAS CUT OFF]..." \
+                            if len(line) > 150 else ""
+                        if line_num <= l_ind + begin_at < line_num + \
+                                vuln_lines_count:
+                            code[l_ind] = "<{:5}.> {}".format(
                                 begin_at + l_ind,
                                 line[:150] + line_ending
                             )
                         else:
-                            code[l_ind] = " {}.  {}".format(
+                            code[l_ind] = " {:5}.  {}".format(
                                 begin_at + l_ind,
                                 line[:150] + line_ending
                             )
@@ -192,6 +202,7 @@ class Appscreener(Scanner):
                 src = {
                     'code': '\n'.join(code),
                     'line': line_num,
+                    'count': vuln_lines_count,
                     'file': path_line[0]
                 }
                 scan_info['vulns'][t_ind]['sources'][i_ind]['src'] = src
