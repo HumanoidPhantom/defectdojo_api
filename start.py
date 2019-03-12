@@ -80,6 +80,70 @@ def update_scans():
 
 
 @main.command()
+@click.option('--eng_id', '-e', help='Engagement ID', type=int)
+def update_engagement(eng_id):
+    """Update engagement scans."""
+    dc = connector.Connector()
+    engagement = dc.dd_v2.get_engagement(eng_id).data
+    start_time = datetime.now()
+    dc.dd_v2.set_engagement(
+        engagement['id'],
+        target_end=(start_time+timedelta(weeks=1)).strftime("%Y-%m-%d")
+    )
+    tools = dc.dd_v2.list_tool_products(
+        product_id=engagement['product'],
+        description=engagement['name']
+    )
+    tests = dc.dd_v2.list_tests(
+        engagement_id=engagement['id']
+    )
+    for tool in tools.data["results"]:
+        tool_configuration = dc.dd_v2.get_tool_configuration(
+            tool['tool_configuration']
+        )
+        results = reports.get_results(
+            tool_configuration,
+            tool
+        )
+        if not results['report'] == "":
+            test = next(
+                (
+                    item for item in tests.data["results"]
+                    if "tool_" + str(tool['id'])
+                    in item["tags"]
+                ),
+                False
+            )
+            if not test:
+                res = dc.dd_v2.upload_scan(
+                    engagement_id=engagement["id"],
+                    scan_type=results['scan_type'],
+                    active=True,
+                    scan_date=start_time.strftime("%Y-%m-%d"),
+                    minimum_severity="Info",
+                    close_old_findings=False,
+                    skip_duplicates=True,
+                    file=(results['file_name'], results['report']),
+                    tags=["tool_" + str(tool['id'])]
+                )
+            else:
+                res = dc.dd_v2.reupload_scan(
+                    test_id=test['id'],
+                    scan_type=results['scan_type'],
+                    file=(results['file_name'], results['report']),
+                    active=True,
+                    scan_date=start_time.strftime("%Y-%m-%d"),
+                    tags=["tool_" + str(tool['id'])]
+                )
+            print(res)
+        # TODO: add exception handling
+        # TODO: separate to different function
+        # TODO: Use tool description (or special field in future)
+        # to connect tool to the engagement
+
+
+
+@main.command()
 def product_engagements_from_gitlab():
     """Load engagements.
 

@@ -13,8 +13,8 @@ class Connector(object):
         """Initialize connector."""
         try:
             self.proxies = {
-              'https': 'http://127.0.0.1:8080',
-              'http': 'http://127.0.0.1:8080'
+              # 'https': 'http://127.0.0.1:8080',
+              # 'http': 'http://127.0.0.1:8080'
             }
 
             with open('config.yaml', 'r') as config_file:

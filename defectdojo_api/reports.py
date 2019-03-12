@@ -1,8 +1,8 @@
 import requests
 import time
 import json
-NESSUS = 1
-APPSCREENER = 2
+NESSUS = 2
+APPSCREENER = 1
 SCANNERS = {
     NESSUS: 'Nessus Scan',
     APPSCREENER: 'Appscreener Scan'
