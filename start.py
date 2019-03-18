@@ -192,7 +192,8 @@ def create_engagement(dc, project, start_time, product=None):
 
 def update_project(dc, engagement_id, tool_config, tool, test, start_time, scan_time=None, last_scan_id=""):
     if test and scan_time:
-        test_update_time = datetime.strptime(test['updated'], '%Y-%m-%dT%H:%M:%S.%f%z')
+        test_updated = datetimestring = re.sub(r'([-+]\d{2}):(\d{2})(?:(\d{2}))?$', r'\1\2\3', test['updated'])
+        test_update_time = datetime.strptime(test_updated, '%Y-%m-%dT%H:%M:%S.%f%z')
         if type(scan_time) == int:
             scan_time = datetime.fromtimestamp(scan_time, test_update_time.tzinfo)
         elif type(scan_time) == str:
@@ -235,7 +236,7 @@ def update_project(dc, engagement_id, tool_config, tool, test, start_time, scan_
                 })
             else:
                 report = results['report']
-                
+
             res = dc.dd_v2.reupload_scan(
                 test_id=test['id'],
                 scan_type=results['scan_type'],
