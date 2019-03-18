@@ -1,5 +1,6 @@
 DefectDojo API
 ==============
+Tested python version: python 3.6
 
 A Python API wrapper for `DefectDojo <https://github.com/OWASP/django-DefectDojo>`_, an AppSec and Security Vulnerability Management tool.
 
