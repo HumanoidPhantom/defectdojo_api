@@ -212,7 +212,7 @@ class Appscreener(Scanner):
             current_date = datetime.now()
             upd_projects = self._request(
                 'GET',
-                url="projects/actual?offset={}&limit={}&sort=date&dir=desc&date=between&date_from={}&date_to={}".format(
+                url="projects/actual?offset={}&limit={}&sort=date&dir=asc&date=between&date_from={}&date_to={}".format(
                     offset,
                     limit,
                     (current_date - timedelta(days=(UPDATE_PROJECT_DAYS - 1))).strftime("%m/%d/%Y"),
