@@ -184,7 +184,6 @@ class Nessus(Scanner):
                 from_day
             )
         )
-
         return upd_projects['scans'] if upd_projects['scans'] else []
 
 
