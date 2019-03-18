@@ -271,11 +271,14 @@ def product_engagements_from_gitlab():
 def engagement_delete_all():
     """Delete all products."""
     dc = connector.Connector()
-
-    engagements = dc.dd_v2.list_engagements(eng_type="CI/CD")
-
-    for engagement in engagements.data["results"]:
-        dc.dd_v2.delete_engagement(engagement["id"])
+    continue_delete = True
+    while (continue_delete):
+        continue_delete = False
+        engagements = dc.dd_v2.list_engagements(eng_type="CI/CD").data['results']
+        if (len(engagements)):
+            continue_delete = True
+            for engagement in engagements:
+                dc.dd_v2.delete_engagement(engagement["id"])
 
 
 if __name__ == '__main__':
