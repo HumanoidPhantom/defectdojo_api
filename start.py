@@ -189,12 +189,6 @@ def create_engagement(dc, project, start_time, product=None):
 
     return engagement
 
-def appscreener_datetime(datetime):
-    res_datetime = None
-    try:
-        scan_time = datetime.strptime(scan_time+tzinfo, '%Y-%m-%dT%H:%M:%SUTC%z')
-
-
 def update_project(dc, engagement_id, tool_config, tool, test, start_time, scan_time=None, last_scan_id=""):
     if test and scan_time:
         test_updated = datetimestring = re.sub(r'([-+]\d{2}):(\d{2})(?:(\d{2}))?$', r'\1\2\3', test['updated'])
