@@ -198,6 +198,7 @@ def update_project(dc, engagement_id, tool_config, tool, test, start_time, scan_
         if type(scan_time) == int:
             scan_time = datetime.fromtimestamp(scan_time, test_update_time.tzinfo)
         elif type(scan_time) == str:
+            scan_time = datetimestring = re.sub(r'([-+]\d{2}):(\d{2})(?:(\d{2}))?$', r'\1\2\3', scan_time)
             scan_time = datetime.strptime(scan_time+str(test_update_time.tzinfo), '%Y-%m-%dT%H:%M:%SUTC%z')
 
         if  scan_time < test_update_time:
