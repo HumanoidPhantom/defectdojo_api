@@ -26,16 +26,16 @@ APPSCREENER = config['scanner_config']['appscreener_id']
 
 # TODO this info should be stored in DD itself
 SCANNERS = {
-    # NESSUS: {
-    #     'name': 'Nessus Scan',
-    #     'test_type_id': 4,
-    #     'id': 'id',
-    #     'project_url': "{}/#/scans/reports/{}",
-    #     'file_name': 'results.nessus'
-    # },
+    NESSUS: {
+        'name': 'Nessus Scan',
+        'test_type_id': config['scanner_config']['nessus_test_type_id'],
+        'id': 'id',
+        'project_url': "{}/#/scans/reports/{}",
+        'file_name': 'results.nessus'
+    },
     APPSCREENER: {
         'name': 'Appscreener Scan',
-        'test_type_id': 36,
+        'test_type_id': config['scanner_config']['appscreener_test_type_id'],
         'id': 'uuid',
         'project_url': "{}/detail/{}",
         'file_name': 'results.json'

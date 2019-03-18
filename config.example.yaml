@@ -5,5 +5,7 @@ user:
 scanner_config:
   nessus_id:
   appscreener_id:
+  nessus_test_type_id:
+  appscreener_test_type_id:
   update_project_days:
   unsorted_product_id:
