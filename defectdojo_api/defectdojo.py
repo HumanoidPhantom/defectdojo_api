@@ -182,7 +182,7 @@ class DefectDojoAPI(object):
         """
         return self._request('GET', 'engagements/' + str(engagement_id) + '/')
 
-    def create_engagement(self, name, product_id, lead_id, status, target_start, target_end, version, active='True',
+    def create_engagement(self, name, product_id, lead_id, status, target_start, target_end, version="", active='True',
         pen_test='False', check_list='False', threat_model='False', risk_path="",test_strategy="", progress="",
         done_testing='False', engagement_type="CI/CD", build_id=None, commit_hash=None, branch_tag=None, build_server=None,
         source_code_management_server=None, source_code_management_uri=None, orchestration_engine=None, description=None,
@@ -234,6 +234,9 @@ class DefectDojoAPI(object):
             'version': version,
             'deduplication_on_engagement': deduplication_on_engagement
         }
+        if version:
+            data.update({'version': version})
+
 
         if description:
             data.update({'description': description})
@@ -426,7 +429,7 @@ class DefectDojoAPI(object):
 
 
     ###### Test API #######
-    def list_tests(self, name=None, engagement_id=None, limit=20):
+    def list_tests(self, name=None, test_type=None, engagement_id=None, limit=20):
         """Retrieves all the tests.
 
         :param name_contains: Search by product name.
@@ -440,6 +443,9 @@ class DefectDojoAPI(object):
 
         if engagement_id:
             params['engagement'] = engagement_id
+
+        if test_type:
+            params['test_type'] = test_type
 
         return self._request('GET', 'tests/', params)
 
@@ -463,7 +469,7 @@ class DefectDojoAPI(object):
         """
 
         data = {
-            'engagement': self.get_engagement_uri(engagement_id),
+            'engagement': engagement_id,
             'test_type': test_type,
             'environment': environment,
             'target_start': target_start,
@@ -749,7 +755,7 @@ class DefectDojoAPI(object):
 
     ##### Upload API #####
 
-    def upload_scan(self, engagement_id, scan_type, file, active, scan_date, tags=None, build=None,
+    def upload_scan(self, engagement_id, scan_type, file, active, scan_date, tool, tags=None, build=None,
                     minimum_severity="Info", close_old_findings=True, skip_duplicates=True):
         """Uploads and processes a scan file.
 
@@ -772,7 +778,8 @@ class DefectDojoAPI(object):
             'build_id': build,
 	        'minimum_severity': minimum_severity,
             'skip_duplicates' : skip_duplicates,
-            'close_old_findings' : close_old_findings
+            'close_old_findings' : close_old_findings,
+            'tool': tool
         }
 
         return self._request(
@@ -783,7 +790,7 @@ class DefectDojoAPI(object):
 
     ##### Re-upload API #####
 
-    def reupload_scan(self, test_id, scan_type, file, active, scan_date, tags=None, build=None,
+    def reupload_scan(self, test_id, scan_type, file, active, scan_date, tool, tags=None, build=None,
                 minimum_severity="Info"):
         """Re-uploads and processes a scan file.
 
@@ -791,8 +798,8 @@ class DefectDojoAPI(object):
         :param file: Path to the scan file to be uploaded.
 
         """
-        if tags is None:
-            tags = ''
+        # if tags is None:
+        #     tags = ''
 
         if build is None:
             build = ''
@@ -802,9 +809,10 @@ class DefectDojoAPI(object):
             'scan_type': scan_type,
             'active': active,
             'scan_date': scan_date,
-            'tags': tags,
+            # 'tags': tags,
             'build_id': build,
-	        'minimum_severity': minimum_severity
+	        'minimum_severity': minimum_severity,
+            'tool': tool
         }
 
         return self._request(
@@ -1093,6 +1101,53 @@ class DefectDojoAPI(object):
 
         """
         return self._request('GET', 'tool_configurations/' + str(tool_configuration_id) + '/')
+
+    def create_tool_product(self, tool_configuration, setting_url,
+        tool_project_id, name, engagement, product, description=""):
+        """Creates tool product settings with the given properties."""
+
+        data = {
+            'name': name,
+            'tool_configuration': tool_configuration,
+            'setting_url': setting_url,
+            'tool_project_id': tool_project_id,
+            'description': description,
+            'engagement': engagement,
+            'product': product
+        }
+
+        return self._request('POST', 'tool_product_settings/', data=data)
+
+    def set_tool_product(self, id, name=None, product=None,
+        tool_configuration=None, tool_project_id=None, setting_url=None,
+        description=None, engagement=None):
+
+        """Updates tool product setting."""
+
+        data = {}
+
+        if name:
+            data['name'] = name
+
+        if product:
+            data['product'] = product
+
+        if tool_configuration:
+            data['tool_configuration'] = tool_configuration
+
+        if tool_project_id:
+            data['tool_project_id'] = tool_project_id
+
+        if url:
+            data['setting_url'] = setting_url
+
+        if description:
+            data['description'] = description
+
+        if engagement:
+            data['engagement'] = engagement
+
+        return self._request('PATCH', 'tool_product_settings/' + str(id) + '/', data=data)
 
     def list_tool_products(self, resource_id=None, url=None, name=None, tool_configuration_id=None,
         tool_project_id=None, product_id=None, limit=20, description=None):

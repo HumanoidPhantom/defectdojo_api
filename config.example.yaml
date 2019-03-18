@@ -2,3 +2,8 @@ api_key:
 api_key2:
 host:
 user:
+scanner_config:
+  nessus_id:
+  appscreener_id:
+  update_project_days:
+  unsorted_product_id:
