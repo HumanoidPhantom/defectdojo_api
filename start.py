@@ -2,6 +2,7 @@ from defectdojo_api import connector, reports
 import click
 from datetime import datetime, timedelta, timezone
 import json
+import re
 
 @click.group()
 def main():
