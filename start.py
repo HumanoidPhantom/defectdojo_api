@@ -125,7 +125,6 @@ def update_all():
                             tool=tool['id']
                         ).data['results']
                 test = tests[0] if tests else False
-                print(test)
 
             else:
                 test = False
