@@ -429,7 +429,7 @@ class DefectDojoAPI(object):
 
 
     ###### Test API #######
-    def list_tests(self, name=None, test_type=None, engagement_id=None, limit=20):
+    def list_tests(self, name=None, test_type=None, engagement_id=None, limit=20, tool=None):
         """Retrieves all the tests.
 
         :param name_contains: Search by product name.
@@ -447,6 +447,8 @@ class DefectDojoAPI(object):
         if test_type:
             params['test_type'] = test_type
 
+        if tool:
+            params['tool'] = tool
         return self._request('GET', 'tests/', params)
 
     def get_test(self, test_id):
@@ -1063,7 +1065,7 @@ class DefectDojoAPI(object):
 
         return self._request('GET', 'tool_types/', params)
 
-    def list_tools(self, resource_id=None, name=None, tool_type_id=None, url=None, name_icontains=None, limit=20, tool=None):
+    def list_tools(self, resource_id=None, name=None, tool_type_id=None, url=None, name_icontains=None, limit=20):
         """Retrieves all the tool configurations.
 
         :param name_contains: Search by tool name.
@@ -1092,8 +1094,6 @@ class DefectDojoAPI(object):
         if name_icontains:
             params['name__icontains'] = name_icontains
 
-        if tool:
-            params['tool'] = tool
         return self._request('GET', 'tool_configurations/', params)
 
     def get_tool_configuration(self, tool_configuration_id):
