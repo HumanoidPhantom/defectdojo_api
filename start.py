@@ -107,10 +107,11 @@ def update_all():
     for scanner_key, scanner in reports.SCANNERS.items():
         tool_configuration = dc.dd_v2.get_tool_configuration(scanner_key).data
         projects = reports.get_last_projects(tool_configuration)
-        tests = dc.dd_v2.list_tests(
-                    test_type=scanner['test_type_id']
-                ).data['results']
         for item in projects:
+            print(item['name'])
+            if not (item['name'].find('Abbm') == -1 and item['name'].find('ABBM') == -1):
+                continue
+
             tools = dc.dd_v2.list_tool_products(
                 tool_project_id=item[scanner['id']],
                 tool_configuration_id=tool_configuration['tool_type']
@@ -119,12 +120,12 @@ def update_all():
             if tools.data['results']:
                 tool = tools.data['results'][0]
                 engagement = dc.dd_v2.get_engagement(tool['engagement']).data
-                test = next(
-                    (
-                        item for item in tests if item['tool'] == tool['id']
-                    ),
-                    False
-                )
+                tests = dc.dd_v2.list_tests(
+                            test_type=scanner['test_type_id'],
+                            tool=tool['id']
+                        ).data['results']
+                test = tests[0] if tests else False
+                print(test)
 
             else:
                 test = False
@@ -201,8 +202,10 @@ def update_project(dc, engagement_id, tool_config, tool, test, start_time, scan_
                 scan_time = datetime.strptime(scan_time+tzinfo, '%Y-%m-%dT%H:%M:%SUTC%z')
             except ValueError:
                 scan_time = datetime.strptime(scan_time+tzinfo, '%Y-%m-%dT%H:%MUTC%z')
+
+        print("Test update time: ", test_update_time, "; Scan update time: ", scan_time)
         if  scan_time < test_update_time:
-            print("Test update time: ", test_update_time, "; Scan update time: ", scan_time)
+            print("Nothing to update")
             return False
 
 
