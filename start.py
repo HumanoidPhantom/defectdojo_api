@@ -202,9 +202,8 @@ def update_project(dc, engagement_id, tool_config, tool, test, start_time, scan_
 
         print("Test update time: ", test_update_time, "; Scan update time: ", scan_time)
         if  scan_time < test_update_time:
-            print("Update this time")
-            # print("Nothing to update")
-            # return False
+            print("Nothing to update")
+            return False
 
 
     results = reports.get_results(

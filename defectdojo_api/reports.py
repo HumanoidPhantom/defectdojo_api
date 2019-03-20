@@ -248,8 +248,6 @@ class Appscreener(Scanner):
             url="scans/{}/vulnerabilities?lang=ru".format(last_scan_id)
         )
         counter = 0
-        # TODO remove
-        new_item  = True
         for t_ind, type in enumerate(scan_info['vulns']):
             for i_ind, item in enumerate(type['sources']):
                 counter += 1
