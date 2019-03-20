@@ -132,8 +132,7 @@ def update_all():
                     start_time=start_time
                 )
                 tool = dc.dd_v2.create_tool_product(
-                    name="{} | {}".format(
-                        tool_configuration['name'],
+                    name="{}".format(
                         engagement['name']
                     ),
                     tool_configuration=scanner_key,
