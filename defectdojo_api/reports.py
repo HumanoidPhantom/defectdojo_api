@@ -248,6 +248,8 @@ class Appscreener(Scanner):
             url="scans/{}/vulnerabilities?lang=ru".format(last_scan_id)
         )
         counter = 0
+        # TODO remove
+        new_item  = True
         for t_ind, type in enumerate(scan_info['vulns']):
             for i_ind, item in enumerate(type['sources']):
                 counter += 1
@@ -293,7 +295,8 @@ class Appscreener(Scanner):
                         'code': '\n'.join(code),
                         'line': line_num,
                         'count': vuln_lines_count,
-                        'file': path_line[0]
+                        'file': path_line[0],
+                        'update_desc': True
                     }
                     scan_info['vulns'][t_ind]['sources'][i_ind]['src'] = src
                 else:
@@ -301,7 +304,8 @@ class Appscreener(Scanner):
                         'code': '',
                         'count': vuln_lines_count,
                         'file': path_line[0],
-                        'line': line_num
+                        'line': line_num,
+                        'update_desc': False
                     }
 
         return scan_info

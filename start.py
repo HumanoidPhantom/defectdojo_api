@@ -109,7 +109,8 @@ def update_all():
         projects = reports.get_last_projects(tool_configuration)
         for item in projects:
             print(item['name'])
-
+            if not (item['name'].find('Abbm') == -1 and item['name'].find('ABBM') == -1):
+                continue
             tools = dc.dd_v2.list_tool_products(
                 tool_project_id=item[scanner['id']],
                 tool_configuration_id=tool_configuration['tool_type']
@@ -201,8 +202,9 @@ def update_project(dc, engagement_id, tool_config, tool, test, start_time, scan_
 
         print("Test update time: ", test_update_time, "; Scan update time: ", scan_time)
         if  scan_time < test_update_time:
-            print("Nothing to update")
-            return False
+            print("Update this time")
+            # print("Nothing to update")
+            # return False
 
 
     results = reports.get_results(
