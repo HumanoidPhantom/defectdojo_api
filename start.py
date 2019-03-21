@@ -109,8 +109,6 @@ def update_all():
         projects = reports.get_last_projects(tool_configuration)
         for item in projects:
             print(item['name'])
-            if not (item['name'].find('Abbm') == -1 and item['name'].find('ABBM') == -1):
-                continue
             tools = dc.dd_v2.list_tool_products(
                 tool_project_id=item[scanner['id']],
                 tool_configuration_id=tool_configuration['tool_type']
