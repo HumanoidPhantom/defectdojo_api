@@ -1152,7 +1152,7 @@ class DefectDojoAPI(object):
         return self._request('PATCH', 'tool_product_settings/' + str(id) + '/', data=data)
 
     def list_tool_products(self, resource_id=None, url=None, name=None, tool_configuration_id=None,
-        tool_project_id=None, product_id=None, limit=20, description=None):
+        tool_project_id=None, product_id=None, limit=20, description=None, engagement=None):
         """Retrieves all the tools.
 
         :param url_contains: Search by url.
@@ -1189,6 +1189,9 @@ class DefectDojoAPI(object):
 
         if description:
             params['description'] = description
+
+        if engagement:
+            params['engagement'] = engagement
 
         return self._request('GET', 'tool_product_settings/', params)
 

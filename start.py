@@ -66,13 +66,9 @@ def update_engagement(eng_id):
     dc = connector.Connector()
     engagement = dc.dd_v2.get_engagement(eng_id).data
     start_time = datetime.now()
-    dc.dd_v2.set_engagement(
-        engagement['id'],
-        target_end=(start_time+timedelta(weeks=1)).strftime("%Y-%m-%d")
-    )
+
     tools = dc.dd_v2.list_tool_products(
-        product_id=engagement['product'],
-        description=engagement['name']
+        engagement=engagement['id']
     )
     tests = dc.dd_v2.list_tests(
         engagement_id=engagement['id']
@@ -87,7 +83,7 @@ def update_engagement(eng_id):
             ),
             False
         )
-        update_project(
+        is_updated = update_project(
             dc=dc,
             engagement_id=engagement['id'],
             tool_config=tool_configuration,
@@ -95,6 +91,13 @@ def update_engagement(eng_id):
             test=test,
             start_time=start_time
         )
+        
+        if is_updated and \
+                engagement['target_start'] != start_time.strftime("%Y-%m-%d"):
+            dc.dd_v2.set_engagement(
+                engagement['id'],
+                target_end=(start_time+timedelta(weeks=1)).strftime("%Y-%m-%d")
+            )
         # TODO: add exception handling
         # TODO: separate to different functions
         # TODO: Use tool description (or special field in future)
