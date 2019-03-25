@@ -281,6 +281,20 @@ def engagement_delete_all():
             for engagement in engagements:
                 dc.dd_v2.delete_engagement(engagement["id"])
 
+@main.command()
+def test_delete_all():
+    """Delete all products."""
+    dc = connector.Connector()
+    continue_delete = True
+    while (continue_delete):
+        continue_delete = False
+        tests = dc.dd_v2.list_tests().data['results']
+        print(len(tests))
+        if (len(tests)):
+            continue_delete = True
+            for test in tests:
+                print(test['id'])
+                dc.dd_v2.delete_test(test["id"])
 
 if __name__ == '__main__':
     main()

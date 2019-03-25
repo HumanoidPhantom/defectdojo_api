@@ -515,6 +515,13 @@ class DefectDojoAPI(object):
 
         return self._request('PUT', 'tests/' + str(test_id) + '/', data=data)
 
+    def delete_test(self, id):
+        """
+        Deletes an test using the given id.
+        :param id: Test identification.
+        """
+        return self._request('DELETE', 'tests/' + str(id) + '/')
+
     ###### Findings API #######
     def list_findings(self, active=None, duplicate=None, mitigated=None, severity=None, verified=None, severity_lt=None,
         severity_gt=None, severity_contains=None, title_contains=None, url_contains=None, date_lt=None,
