@@ -300,5 +300,18 @@ def test_delete_all():
                 print(test['id'])
                 dc.dd_v2.delete_test(test["id"])
 
+@main.command()
+@click.option('--test_id', '-t', help='Test ID', type=int)
+def test_delete_findings(test_id):
+    dc = connector.Connector()
+    continue_delete = True
+    while (continue_delete):
+        continue_delete = False
+        findings = dc.dd_v2.list_findings(test=test_id).data['results']
+        if len(findings):
+            continue_delete = True
+            for finding in findings:
+                dc.dd_v2.delete_finding(finding['id'])
+
 if __name__ == '__main__':
     main()

@@ -525,7 +525,7 @@ class DefectDojoAPI(object):
     ###### Findings API #######
     def list_findings(self, active=None, duplicate=None, mitigated=None, severity=None, verified=None, severity_lt=None,
         severity_gt=None, severity_contains=None, title_contains=None, url_contains=None, date_lt=None,
-        date_gt=None, date=None, product_id_in=None, engagement_id_in=None, test_id_in=None, build=None, limit=20):
+        date_gt=None, date=None, product_id_in=None, engagement_id_in=None, test=None, build=None, limit=20):
 
         """Returns filtered list of findings.
 
@@ -599,8 +599,8 @@ class DefectDojoAPI(object):
         if product_id_in:
             params['product__id__in'] = product_id_in
 
-        if test_id_in:
-            params['test__id__in'] = test_id_in
+        if test:
+            params['test'] = test
 
         if build:
             params['build_id__contains'] = build
@@ -613,6 +613,14 @@ class DefectDojoAPI(object):
         :param finding_id: Finding identification.
         """
         return self._request('GET', 'findings/' + str(finding_id) + '/')
+
+    def delete_finding(self, id):
+        """
+        Deletes a finding using the given id.
+        :param id: Finding identification.
+        """
+        return self._request('DELETE', 'findings/' + str(id) + '/')
+
 
     def create_finding(self, title, description, severity, cwe, date, product_id, engagement_id,
         test_id, user_id, impact, active, verified, mitigation, references=None, build=None, line=0,
