@@ -77,21 +77,25 @@ def update_engagement(eng_id):
         tool_configuration = dc.dd_v2.get_tool_configuration(
             tool['tool_configuration']
         ).data
+        project = reports.get_project(tool_config=tool_configuration, project_id=tool['tool_project_id'])
         test = next(
             (
                 item for item in tests if item['tool'] == tool['id']
             ),
             False
         )
+        scan_time, last_scan_id = reports.get_scanner_datetime(project, tool['tool_configuration'], from_engagement=True)
         is_updated = update_project(
             dc=dc,
             engagement_id=engagement['id'],
             tool_config=tool_configuration,
             tool=tool,
             test=test,
-            start_time=start_time
+            start_time=start_time,
+            scan_time=scan_time,
+            last_scan_id=last_scan_id
         )
-        
+
         if is_updated and \
                 engagement['target_start'] != start_time.strftime("%Y-%m-%d"):
             dc.dd_v2.set_engagement(
@@ -109,7 +113,7 @@ def update_all():
     start_time = datetime.now()
     for scanner_key, scanner in reports.SCANNERS.items():
         tool_configuration = dc.dd_v2.get_tool_configuration(scanner_key).data
-        projects = reports.get_last_projects(tool_configuration)
+        projects = reports.get_last_projects(tool_config=tool_configuration)
         for item in projects:
             print(item['name'])
             tools = dc.dd_v2.list_tool_products(

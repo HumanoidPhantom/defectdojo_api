@@ -42,13 +42,19 @@ SCANNERS = {
     }
 }
 
-def get_scanner_datetime(project, scanner_key):
+def get_scanner_datetime(project, scanner_key, from_engagement=False):
     last_scan_id = ""
     if scanner_key == NESSUS:
-        scan_time = project['last_modification_date']
+        if from_engagement:
+            scan_time = project['info']['scan_end']
+        else:
+            scan_time = project['last_modification_date']
     elif scanner_key == APPSCREENER:
-        scan_time = project['scan']['dateTime'] if project['scan'] else ""
-        last_scan_id = project['scan']['uuid']
+        if from_engagement:
+            scan_time = project['dateTime']
+        else:
+            scan_time = project['scan']['dateTime'] if project['scan'] else ""
+            last_scan_id = project['scan']['uuid']
     else:
         raise NameError("Add datetime field info for {}".format(
             SCANNERS[scanner_key]['name'])
@@ -94,6 +100,10 @@ def get_results(tool_config, project_config, new_item, last_scan_id=""):
 def get_last_projects(tool_config):
     scan_type, scanner, file_name = configure_tool(tool_config)
     return scanner.get_last_projects()
+
+def get_project(tool_config, project_id):
+    scan_type, scanner, file_name = configure_tool(tool_config)
+    return scanner.get_project(project_id)
 
 class Scanner(object):
     """Get scan results."""
@@ -186,6 +196,15 @@ class Nessus(Scanner):
         )
         return upd_projects['scans'] if upd_projects['scans'] else []
 
+    def get_project(self, project_id):
+        project = self._request(
+            'GET',
+            url="scans/{}".format(
+                project_id
+            )
+        )
+        return project
+
 
 class Appscreener(Scanner):
     """Appscreener scan results."""
@@ -199,6 +218,16 @@ class Appscreener(Scanner):
         )
 
         self.headers["Authorization"] = tool_configuration['api_key']
+
+    def get_project(self, project_id):
+        """Get project from Appscreener."""
+
+        project = self._request(
+            'GET',
+            url="projects/{}/scans/last?lang=ru".format(project_id)
+        )
+
+        return project
 
     def get_last_projects(self):
         limit = 30
