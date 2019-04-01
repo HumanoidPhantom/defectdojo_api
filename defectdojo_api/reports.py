@@ -88,7 +88,6 @@ def get_results(tool_config, project_config, new_item, last_scan_id=""):
     TODO set up language change in defectdojo
     """
     scan_type, scanner, file_name = configure_tool(tool_config, project_config)
-    report = ""
     report = scanner.get_results(new_item=new_item, last_scan_id=last_scan_id)
 
     return {
@@ -176,8 +175,10 @@ class Nessus(Scanner):
                 self.project_id
             ),
             data={"format": "nessus"})
-        loaded = self.check_status(str(file_info['file']))
         report = ""
+        if ('error' in file_info and not file_info['error'].find('running') == -1):
+            return report
+        loaded = self.check_status(str(file_info['file']))
         if loaded:
             report = self._request(
                 'GET',
@@ -271,6 +272,9 @@ class Appscreener(Scanner):
             'GET',
             url="scans/{}?lang=ru".format(last_scan_id)
         )
+        if not scan_info['status'] == 'COMPLETE':
+            return []
+
         scan_info['dateTime'] = res['dateTime']
         scan_info['vulns'] = self._request(
             'GET',

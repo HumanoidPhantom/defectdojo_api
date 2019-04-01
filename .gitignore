@@ -106,3 +106,5 @@ config/config.json
 test.py
 .DS_Store
 temp
+scans_updater.sh
+tmp.cront

@@ -210,7 +210,6 @@ def update_project(dc, engagement_id, tool_config, tool, test, start_time, scan_
             print("Nothing to update")
             return False
 
-
     results = reports.get_results(
         tool_config=tool_config,
         project_config=tool,
