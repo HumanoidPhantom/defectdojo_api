@@ -272,7 +272,7 @@ class Appscreener(Scanner):
             'GET',
             url="scans/{}?lang=ru".format(last_scan_id)
         )
-        if not scan_info['status'] == 'COMPLETE':
+        if not res['status'] == 'COMPLETE':
             return []
 
         scan_info['dateTime'] = res['dateTime']
