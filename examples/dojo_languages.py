@@ -10,9 +10,9 @@ import os
 import json
 
 # Setup DefectDojo connection information
-host = 'http://localhost:8000'
-api_key = os.environ['DOJO_API_KEY']
-user = 'admin'
+host = "http://localhost:8000"
+api_key = os.environ["DOJO_API_KEY"]
+user = "admin"
 
 """
 #Optionally, specify a proxy
@@ -33,8 +33,8 @@ user_id = 1
 
 dd.delete_all_app_analysis_product(product_id)
 
-#language =
-data = json.load(open('/tmp/wap.json'))
+# language =
+data = json.load(open("/tmp/wap.json"))
 for app in data["applications"]:
     name = app["name"]
     confidence = app["confidence"]
@@ -42,7 +42,9 @@ for app in data["applications"]:
     icon = app["icon"]
     website = app["website"]
 
-    dd.create_app_analysis(product_id, user_id, name, confidence, version, icon, website)
+    dd.create_app_analysis(
+        product_id, user_id, name, confidence, version, icon, website
+    )
 """
 #language =
 data = json.load(open('/Users/aweaver/git/AppSecPipelineReports/4cd987e4-6550-48c7-815c-21cf0c4f33fe/reports/cloc/languages.json'))
@@ -63,9 +65,9 @@ if languages.success:
     for language in languages.data["objects"]:
         print language['resource_uri']
 """
-#language_product = dd.list_languages(product_id=1)
-#dd.delete_all_languages_product(1)
-#print language_product
+# language_product = dd.list_languages(product_id=1)
+# dd.delete_all_languages_product(1)
+# print language_product
 """
 # List Products
 products = dd.list_products()
