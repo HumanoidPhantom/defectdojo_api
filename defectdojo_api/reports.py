@@ -27,13 +27,13 @@ APPSCREENER = config["scanner_config"]["appscreener_id"]
 
 # TODO this info should be stored in DD itself
 SCANNERS = {
-    # NESSUS: {
-    #     "name": "Nessus Scan",
-    #     "test_type_id": config["scanner_config"]["nessus_test_type_id"],
-    #     "id": "id",
-    #     "project_url": "{}/#/scans/reports/{}",
-    #     "file_name": "results.nessus",
-    # },
+    NESSUS: {
+        "name": "Nessus Scan",
+        "test_type_id": config["scanner_config"]["nessus_test_type_id"],
+        "id": "id",
+        "project_url": "{}/#/scans/reports/{}",
+        "file_name": "results.nessus",
+    },
     APPSCREENER: {
         "name": "Appscreener Scan",
         "test_type_id": config["scanner_config"]["appscreener_test_type_id"],
@@ -343,7 +343,6 @@ class Appscreener(Scanner):
                         "GET",
                         url="issues/{}/source?lang=ru".format(item["uuid"]),
                     )
-                    print(full_source_code)
                     if line_num != 0:
                         lines = full_source_code["code"].splitlines()
                         begin_at = line_num - 5 if line_num > 5 else 1

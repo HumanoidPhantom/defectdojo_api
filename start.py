@@ -244,7 +244,7 @@ def update_project(
         )
         if scan_time < test_update_time:
             print("Nothing to update")
-            # return False
+            return False
 
     if tool_config["tool_type"] == reports.APPSCREENER and test_update_time and tzinfo:
         new_scans = reports.get_new_scans(tool_config, tool, test_update_time, tzinfo)
