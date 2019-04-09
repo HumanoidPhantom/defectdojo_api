@@ -258,7 +258,7 @@ def update_project(
             project_config=tool,
             new_item=False if test else True,
             last_scan_id=scan_id,
-            code_dedup="code_dedup" in test['tags']
+            code_dedup=test and "code_dedup" in test['tags']
         )
 
         if results["report"]:
