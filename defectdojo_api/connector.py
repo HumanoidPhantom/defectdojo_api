@@ -37,7 +37,7 @@ class Connector(object):
                     self.config["host"],
                     self.config["api_key"],
                     self.config["user"],
-                    verify_ssl=False
+                    verify_ssl=False,
                 )
                 self.dd_v2 = defectdojo.DefectDojoAPI(
                     self.config["host"],
@@ -45,7 +45,7 @@ class Connector(object):
                     self.config["user"],
                     api_version="v2",
                     proxies=self.proxies,
-                    verify_ssl=False
+                    verify_ssl=False,
                 )
         except FileNotFoundError as fnf_error:
             print(fnf_error)

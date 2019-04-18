@@ -113,7 +113,7 @@ def update_engagement(eng_id):
 def update_all():
     dc = connector.Connector()
     start_time = datetime.now()
-    for scanner_key, scanner in reports.SCANNERS.items():
+    for scanner_key, scanner in reports.scanners.items():
         tool_configuration = dc.dd_v2.get_tool_configuration(scanner_key).data
         projects = reports.get_last_projects(tool_config=tool_configuration)
         for item in projects:
@@ -134,7 +134,7 @@ def update_all():
             else:
                 test = False
                 engagement = create_engagement(
-                    dc=dc, project=item, start_time=start_time
+                    dc=dc, project=item['name'], start_time=start_time
                 )
 
                 tool_base_url = tool_configuration['configuration_url'].replace("/app/api/v1", "")
@@ -187,7 +187,7 @@ def create_engagement(dc, project, start_time, product=None):
     # TODO get info about git repository if exists
     # TODO set branch in the name
     engagement = dc.dd_v2.create_engagement(
-        name=project["name"],
+        name=project,
         product_id=product_id,
         lead_id=current_user,
         status="In Progress",
@@ -246,7 +246,7 @@ def update_project(
             print("Nothing to update")
             return False
 
-    if tool_config["tool_type"] == reports.APPSCREENER and test_update_time and tzinfo:
+    if tool_config["tool_type"] == reports.appscreener and test_update_time and tzinfo:
         new_scans = reports.get_new_scans(tool_config, tool, test_update_time, tzinfo)
     else:
         new_scans = [last_scan_id]
@@ -266,7 +266,7 @@ def update_project(
             if not test:
                 test = dc.dd_v2.create_test(
                     engagement_id=engagement_id,
-                    test_type=reports.SCANNERS[tool_config["id"]]["test_type_id"],
+                    test_type=reports.scanners[tool_config["id"]]["test_type_id"],
                     environment=1,
                     target_start=start_time.strftime("%Y-%m-%d"),
                     target_end=start_time.strftime("%Y-%m-%d"),
@@ -274,7 +274,7 @@ def update_project(
 
             limit = 20
             offset = 0
-            if tool_config["tool_type"] == reports.APPSCREENER:
+            if tool_config["tool_type"] == reports.appscreener:
                 amount = (
                     limit
                     if len(results["report"]["vulns"]) < limit
@@ -283,7 +283,7 @@ def update_project(
             else:
                 amount = limit
             while offset + limit <= amount:
-                if tool_config["tool_type"] == reports.APPSCREENER:
+                if tool_config["tool_type"] == reports.appscreener:
                     report = json.dumps(
                         {
                             "dateTime": results["report"]["dateTime"],
@@ -309,14 +309,65 @@ def update_project(
 
 
 @main.command()
-def product_engagements_from_gitlab():
+def scan_nikto():
     """Load engagements.
 
-    Load engagements of the product from Gitlab. Product - gitlab group, all
-    projects in it will be engagements in defectdojo.
+    Start Nikto scanner and get data.
     """
-    pass
+    start_time = datetime.now()
+    dc = connector.Connector()
+    if not reports.nikto:
+        raise NameError("Add Nikto configuration in config.yaml")
 
+    scanner = reports.scanners[reports.nikto]
+    tool_configuration = dc.dd_v2.get_tool_configuration(reports.nikto).data
+    tools = dc.dd_v2.list_tool_products(
+        tool_configuration_id=tool_configuration["tool_type"],
+    ).data['results']
+
+    if not tools:
+        test = False
+        scan_name = "External Domains Nikto Scan"
+        engagement = create_engagement(
+            dc=dc, project=scan_name, start_time=start_time
+        )
+
+        tool = dc.dd_v2.create_tool_product(
+            name="{}".format(scan_name),
+            tool_configuration=reports.nikto,
+            engagement=engagement["id"],
+            product=engagement["product"],
+        ).data
+    else:
+        tool=tools[0]
+        engagement = dc.dd_v2.get_engagement(tool["engagement"]).data
+        tests = dc.dd_v2.list_tests(
+            test_type=scanner["test_type_id"], tool=tool["id"]
+        ).data["results"]
+        test = tests[0] if tests else False
+
+    if not test:
+        test = dc.dd_v2.create_test(
+            engagement_id=engagement["id"],
+            test_type=scanner["test_type_id"],
+            environment=1,
+            target_start=start_time.strftime("%Y-%m-%d"),
+            target_end=start_time.strftime("%Y-%m-%d"),
+        ).data
+
+    f = open("nikto.xml")
+    data = f.read()
+    f.close()
+    res = dc.dd_v2.reupload_scan(
+        test_id=test["id"],
+        scan_type=scanner["name"],
+        file=(scanner["file_name"], data),
+        active=True,
+        scan_date=start_time.strftime("%Y-%m-%d"),
+        tool=tool["id"],
+    )
+
+    print(res)
 
 # @click.option(
 #   '--action',

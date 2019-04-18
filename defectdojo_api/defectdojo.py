@@ -271,7 +271,7 @@ class DefectDojoAPI(object):
         :param source_code_management_server: URL of source code management
         :param source_code_management_uri: Link to source code commit
         :param orchestration_engine: URL of orchestration engine
-        :param deduplication_on_engagement: Dedublicate engagement
+        :param deduplication_on_engagement: Deduplicate engagement
 
         """
 
@@ -1358,12 +1358,12 @@ class DefectDojoAPI(object):
     def create_tool_product(
         self,
         tool_configuration,
-        setting_url,
-        tool_project_id,
         name,
         engagement,
         product,
         description="",
+        setting_url="",
+        tool_project_id="",
     ):
         """Creates tool product settings with the given properties."""
 

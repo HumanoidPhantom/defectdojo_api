@@ -22,36 +22,49 @@ with open("config.yaml", "r") as config_file:
 
 UPDATE_PROJECT_DAYS = config["scanner_config"]["update_project_days"]
 UNSORTED_PRODUCT_ID = config["scanner_config"]["unsorted_product_id"]
-NESSUS = config["scanner_config"]["nessus_id"]
-APPSCREENER = config["scanner_config"]["appscreener_id"]
 
 # TODO this info should be stored in DD itself
-SCANNERS = {
-    NESSUS: {
-        "name": "Nessus Scan",
-        "test_type_id": config["scanner_config"]["nessus_test_type_id"],
-        "id": "id",
-        "project_url": "{}/#/scans/reports/{}",
-        "file_name": "results.nessus",
-    },
-    APPSCREENER: {
-        "name": "Appscreener Scan",
-        "test_type_id": config["scanner_config"]["appscreener_test_type_id"],
-        "id": "uuid",
-        "project_url": "{}/detail/{}",
-        "file_name": "results.json",
-    },
-}
+scanners = {}
+nessus = None
+appscreener = None
+nikto = None
+if "nessus" in config["scanner_config"]:
+    nessus = config["scanner_config"]["nessus"]["id"]
+    scanners[nessus] = {
+        "name": config["scanner_config"]["nessus"]["name"],
+        "test_type_id": config["scanner_config"]["nessus"]["test_type_id"],
+        "id": config["scanner_config"]["nessus"]["id_param_name"],
+        "project_url": config["scanner_config"]["nessus"]["project_url"],
+        "file_name": config["scanner_config"]["nessus"]["file_name"],
+    }
+if "appscreener" in config["scanner_config"]:
+    appscreener = config["scanner_config"]["appscreener"]["id"]
+    scanners[appscreener] = {
+        "name": config["scanner_config"]["appscreener"]["name"],
+        "test_type_id": config["scanner_config"]["appscreener"]["test_type_id"],
+        "id": config["scanner_config"]["appscreener"]["id_param_name"],
+        "project_url": config["scanner_config"]["appscreener"]["project_url"],
+        "file_name": config["scanner_config"]["appscreener"]["file_name"],
+    }
+if "nikto" in config["scanner_config"]:
+    nikto = config["scanner_config"]["nikto"]["id"]
+    scanners[nikto] = {
+        "name": config["scanner_config"]["nikto"]["name"],
+        "test_type_id": config["scanner_config"]["nikto"]["test_type_id"],
+        "id": config["scanner_config"]["nikto"]["id_param_name"],
+        "project_url": config["scanner_config"]["nikto"]["project_url"],
+        "file_name": config["scanner_config"]["nikto"]["file_name"],
+    }
 
 
 def get_scanner_datetime(project, scanner_key, from_engagement=False):
     last_scan_id = ""
-    if scanner_key == NESSUS:
+    if scanner_key == nessus:
         if from_engagement:
             scan_time = project["info"]["scan_end"]
         else:
             scan_time = project["last_modification_date"]
-    elif scanner_key == APPSCREENER:
+    elif scanner_key == appscreener:
         if from_engagement:
             scan_time = project["dateTime"]
         else:
@@ -60,7 +73,7 @@ def get_scanner_datetime(project, scanner_key, from_engagement=False):
     else:
         raise NameError(
             "Add datetime field info for {}".format(
-                SCANNERS[scanner_key]["name"]
+                scanners[scanner_key]["name"]
             )
         )
     return scan_time, last_scan_id
@@ -72,20 +85,21 @@ def pretty_json(json_obj):
 
 def configure_tool(tool_configuration, project_configuration=None):
     """Configure scanner connector."""
-    scan_type = ""
-    if tool_configuration["tool_type"] == NESSUS:
+    if tool_configuration["tool_type"] == nessus:
         scanner = Nessus(tool_configuration, project_configuration)
-    elif tool_configuration["tool_type"] == APPSCREENER:
+    elif tool_configuration["tool_type"] == appscreener:
         scanner = Appscreener(tool_configuration, project_configuration)
+    elif tool_configuration["tool_type"] == nikto:
+        scanner = None
     else:
         raise NameError(
-            "Scanner {} does not known".format(tool_configuration["tool_type"])
+            "Scanner {} is not known".format(tool_configuration["tool_type"])
         )
 
     return (
-        SCANNERS[tool_configuration["tool_type"]]["name"],
+        scanners[tool_configuration["tool_type"]]["name"],
         scanner,
-        SCANNERS[tool_configuration["tool_type"]]["file_name"],
+        scanners[tool_configuration["tool_type"]]["file_name"],
     )
 
 def get_results(
@@ -114,6 +128,9 @@ def get_results(
 
 def get_last_projects(tool_config):
     scan_type, scanner, file_name = configure_tool(tool_config)
+    if not scanner:
+        return []
+
     return scanner.get_last_projects()
 
 
@@ -154,6 +171,7 @@ class Scanner(object):
 
     def get_new_scans(self, test_update_time, tzinfo):
         return []
+
 
 
 class Nessus(Scanner):
