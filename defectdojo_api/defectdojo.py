@@ -669,6 +669,7 @@ class DefectDojoAPI(object):
         test=None,
         build=None,
         limit=20,
+        offset=0,
     ):
 
         """Returns filtered list of findings.
