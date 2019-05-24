@@ -369,6 +369,33 @@ def scan_nikto():
 
     print(res)
 
+
+@main.command()
+def update_findings():
+    dc = connector.Connector()
+    limit = 20
+    offset = 0
+    while True:
+        findings=dc.dd_v2.list_findings(limit=limit, offset=offset).data['results']
+        if findings:
+            for item in findings:
+                print(item)
+                res=dc.dd_v2.set_finding(
+                    item['id'],
+                    impact=item['impact'],
+                    severity=item['severity'],
+                    title=item['title'],
+                    mitigation=item['mitigation'],
+                    numerical_severity=item['numerical_severity'],
+                    description=item['description'],
+                )
+                print(res)
+                # exit()
+            offset+=limit
+        else:
+            break
+
+
 # @click.option(
 #   '--action',
 #   default='add_product',

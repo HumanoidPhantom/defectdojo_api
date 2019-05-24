@@ -844,94 +844,94 @@ class DefectDojoAPI(object):
         return self._request("POST", "findings/", data=data)
 
     def set_finding(
-        self,
-        finding_id,
-        product_id,
-        engagement_id,
-        test_id,
-        title=None,
-        description=None,
-        severity=None,
-        cwe=None,
-        date=None,
-        user_id=None,
-        impact=None,
-        active=None,
-        verified=None,
-        mitigation=None,
-        references=None,
-    ):
+          self,
+          finding_id,
+          # product_id,
+          # engagement_id,
+          # test_id,
+          title=None,
+          description=None,
+          severity=None,
+          cwe=None,
+          date=None,
+          user_id=None,
+          impact=None,
+          active=None,
+          verified=None,
+          mitigation=None,
+          references=None,
+          numerical_severity=None,
+      ):
 
-        """Updates a finding with the given properties.
+          """Updates a finding with the given properties.
 
-        :param title: Finding title
-        :param description: Finding detailed description.
-        :param severity: Finding severity: Low, Medium, High and Critical
-        :param cwe: CWE (int)
-        :param date: Discovered Date.
-        :param product_id: Product finding should be associated with.
-        :param engagement_id: Engagement finding should be associated with.
-        :param test_id: Test finding should be associated with.
-        :param user_id: Reporter of finding.
-        :param impact: Detailed impact of finding.
-        :param active: Finding active and reported on.
-        :param verified: Finding has been verified.
-        :param mitigation: Steps to mitigate the finding.
-        :param references: Details on finding.
-        :param build: User specified build id relating to the build number from the build server. (Jenkins, Travis etc.).
+          :param title: Finding title
+          :param description: Finding detailed description.
+          :param severity: Finding severity: Low, Medium, High and Critical
+          :param cwe: CWE (int)
+          :param date: Discovered Date.
+          :param product_id: Product finding should be associated with.
+          :param engagement_id: Engagement finding should be associated with.
+          :param test_id: Test finding should be associated with.
+          :param user_id: Reporter of finding.
+          :param impact: Detailed impact of finding.
+          :param active: Finding active and reported on.
+          :param verified: Finding has been verified.
+          :param mitigation: Steps to mitigate the finding.
+          :param references: Details on finding.
+          :param build: User specified build id relating to the build number from the build server. (Jenkins, Travis etc.).
 
-        """
+          """
 
-        data = {}
+          data = {}
 
-        if title:
-            data["title"] = title
+          if title:
+              data["title"] = title
 
-        if description:
-            data["description"] = description
+          if description:
+              data["description"] = description
 
-        if severity:
-            data["severity"] = severity
+          if severity:
+              data["severity"] = severity
 
-        if cwe:
-            data["cwe"] = cwe
+          if cwe:
+              data["cwe"] = cwe
 
-        if date:
-            data["date"] = date
+          if date:
+              data["date"] = date
 
-        if product_id:
-            data["product"] = self.get_product_uri(product_id)
+          # if product_id:
+          #     data["product"] = self.get_product_uri(product_id)
+          #
+          # if engagement_id:
+          #     data["engagement"] = self.get_engagement_uri(engagement_id)
 
-        if engagement_id:
-            data["engagement"] = self.get_engagement_uri(engagement_id)
+          # if test_id:
+          #     data["test"] = self.get_test_uri(test_id)
 
-        if test_id:
-            data["test"] = self.get_test_uri(test_id)
+          if user_id:
+              data["reporter"] = self.get_user_uri(user_id)
 
-        if user_id:
-            data["reporter"] = self.get_user_uri(user_id)
+          if impact:
+              data["impact"] = impact
 
-        if impact:
-            data["impact"] = impact
+          if active:
+              data["active"] = active
 
-        if active:
-            data["active"] = active
+          if verified:
+              data["verified"] = verified
 
-        if verified:
-            data["verified"] = verified
+          if mitigation:
+              data["mitigation"] = mitigation
 
-        if mitigation:
-            data["mitigation"] = mitigation
+          if references:
+              data["references"] = references
 
-        if references:
-            data["references"] = references
-
-        if build:
-            data["build_id"] = build
-
-        return self._request(
-            "PUT", "findings/" + str(finding_id) + "/", data=data
-        )
+          if numerical_severity:
+              data["numerical_severity"] = numerical_severity
+          return self._request(
+              "PUT", "findings/" + str(finding_id) + "/", data=data
+          )
 
     ##### Build Details API #####
 
