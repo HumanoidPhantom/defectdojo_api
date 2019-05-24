@@ -699,6 +699,9 @@ class DefectDojoAPI(object):
         if limit:
             params["limit"] = limit
 
+        if offset:
+            params["offset"] = offset
+
         if active:
             params["active"] = active
 
