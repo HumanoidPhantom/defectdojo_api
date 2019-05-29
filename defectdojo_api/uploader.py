@@ -99,9 +99,7 @@ def update_all():
 
 
 def scan_nikto(data, domain):
-    """Load engagements.
-
-    Start Nikto scanner and get data.
+    """Upload Nikto scanner and get data.
     """
     start_time = datetime.now()
     dc = connector.Connector()
@@ -135,7 +133,7 @@ def scan_nikto(data, domain):
             target_start=start_time.strftime("%Y-%m-%d"),
             target_end=start_time.strftime("%Y-%m-%d"),
         ).data
-    
+
     res = dc.dd_v2.reupload_scan(
         test_id=test["id"],
         scan_type=scanner["name"],
@@ -146,7 +144,6 @@ def scan_nikto(data, domain):
     )
 
     print(res)
-    exit()
 
 
 def engagement_delete_all():
