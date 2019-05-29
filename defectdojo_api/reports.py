@@ -214,6 +214,7 @@ class Nessus(Scanner):
         if (
             "error" in file_info
             and not file_info["error"].find("running") == -1
+            and not file_info["error"].find("being exported") == -1
         ):
             return report
         loaded = self.check_status(str(file_info["file"]))
