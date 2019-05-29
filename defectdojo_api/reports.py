@@ -22,6 +22,7 @@ with open("config.yaml", "r") as config_file:
 
 UPDATE_PROJECT_DAYS = config["scanner_config"]["update_project_days"]
 UNSORTED_PRODUCT_ID = config["scanner_config"]["unsorted_product_id"]
+EXTERNAL_PRODUCT_ID = config["scanner_config"]["external_domain_product_id"]
 
 # TODO this info should be stored in DD itself
 scanners = {}

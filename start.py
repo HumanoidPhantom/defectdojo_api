@@ -1,8 +1,5 @@
-from defectdojo_api import connector, reports, uploader
+from defectdojo_api import uploader
 import click
-from datetime import datetime, timedelta, timezone
-import json
-import re
 
 
 @click.group()
@@ -15,17 +12,18 @@ def main():
 @click.option(
     '--type', '-t',
     type=click.Choice(['all', 'engagement', 'nikto']),
-    help="Update type:\n\
-        all (default) - updatel all products from \
-        Appscreener + Nessus scanners\n\
-        engagement - update specific engagement from \
-        Appscreener + Nessus scanners\n\
-        nikto - update from nikto scanner",
+    help="Update type:\n"
+        "all (default) - updatel all products from "
+        "Appscreener + Nessus scanners\n"
+        "engagement - update specific engagement from "
+        "Appscreener + Nessus scanners\n"
+        "nikto - update from nikto scanner",
     default='all'
 )
 @click.option("--eng_id", "-e", help="Engagement ID", type=int)
 @click.option("--file_path", "-f", help="Path to nikto scan results", type=str)
-def update(type, eng_id, file_path):
+@click.option("--domain", "-d", help="Scanned domain name", type=str)
+def update(type, eng_id, file_path, domain):
     if type == 'all':
         uploader.update_all()
     elif type == 'engagement':
@@ -35,14 +33,14 @@ def update(type, eng_id, file_path):
         uploader.update_engagement(eng_id)
     elif type == 'nikto':
         try:
-            if not file_path:
-                print("File path for nikto scan results should be specified")
+            if not (file_path and domain):
+                print("Domain name and file path for nikto " +
+                    "scan results should be specified")
                 exit()
             f = open(file_path, 'r')
             data = f.read()
             f.close()
-            exit()
-            uploader.scan_nikto()
+            uploader.scan_nikto(data=data, domain=domain)
         except IOError as e:
             print('Cannot open file {}. Error: '.format(file_path), e)
     else:

@@ -59,7 +59,7 @@ def update_all():
             print(item["name"])
             tools = dc.dd_v2.list_tool_products(
                 tool_project_id=item[scanner["id"]],
-                tool_configuration_id=tool_configuration["tool_type"],
+                tool_configuration_id=tool_configuration["id"],
             ).data["results"]
 
             tool, engagement, test = get_project_data(
@@ -98,7 +98,7 @@ def update_all():
                 )
 
 
-def scan_nikto(data):
+def scan_nikto(data, domain):
     """Load engagements.
 
     Start Nikto scanner and get data.
@@ -110,8 +110,10 @@ def scan_nikto(data):
 
     scanner = reports.scanners[reports.nikto]
     tool_configuration = dc.dd_v2.get_tool_configuration(reports.nikto).data
+
     tools = dc.dd_v2.list_tool_products(
-        tool_configuration_id=tool_configuration["tool_type"],
+        tool_configuration_id=tool_configuration["id"],
+        name=domain,
     ).data['results']
 
     tool, engagement, test = get_project_data(
@@ -121,6 +123,8 @@ def scan_nikto(data):
         tool_cfg=tool_configuration,
         scanner=scanner,
         start_time=start_time,
+        product_id=reports.EXTERNAL_PRODUCT_ID,
+        tool_name=domain
     )
 
     if not test:
@@ -131,7 +135,7 @@ def scan_nikto(data):
             target_start=start_time.strftime("%Y-%m-%d"),
             target_end=start_time.strftime("%Y-%m-%d"),
         ).data
-
+    
     res = dc.dd_v2.reupload_scan(
         test_id=test["id"],
         scan_type=scanner["name"],
@@ -142,6 +146,7 @@ def scan_nikto(data):
     )
 
     print(res)
+    exit()
 
 
 def engagement_delete_all():
@@ -188,17 +193,22 @@ def get_project_data(
     scanner,
     start_time,
     project_id="",
+    product_id=None,
+    tool_name="",
 ):
     if not tools:
         test = False
         engagement = create_engagement(
-            dc=dc, project=scanner_name, start_time=start_time
+            dc=dc,
+            project=scanner_name,
+            start_time=start_time,
+            product=product_id,
         )
 
         tool_base_url = tool_cfg['configuration_url'].replace("/app/api/v1", "")
 
         tool = dc.dd_v2.create_tool_product(
-            name="{}".format(scanner_name),
+            name=tool_name if tool_name else scanner_name,
             tool_configuration=tool_cfg["id"],
             engagement=engagement["id"],
             product=engagement["product"],
@@ -261,7 +271,7 @@ def update_project(
         if not has_update:
             return has_update
 
-    if tool_config["tool_type"] == reports.appscreener \
+    if tool_config["id"] == reports.appscreener \
             and test_update_time and tzinfo:
         new_scans = reports.get_new_scans(
             tool_config,
@@ -298,7 +308,7 @@ def update_project(
             scan_uploader(
                 dc=dc,
                 results=results,
-                tool_type=tool_config["tool_type"],
+                tool_config_id=tool_config["id"],
                 test_id=test["id"],
                 tool_id=tool["id"],
                 start_time=start_time,
@@ -306,10 +316,10 @@ def update_project(
     return success
 
 
-def scan_uploader(dc, results, tool_type, test_id, tool_id, start_time):
+def scan_uploader(dc, results, tool_config_id, test_id, tool_id, start_time):
     limit = 20
     offset = 0
-    if tool_type == reports.appscreener:
+    if tool_config_id == reports.appscreener:
         amount = (
             limit
             if len(results["report"]["vulns"]) < limit
@@ -318,7 +328,7 @@ def scan_uploader(dc, results, tool_type, test_id, tool_id, start_time):
     else:
         amount = limit
     while offset + limit <= amount:
-        if tool_type == reports.appscreener:
+        if tool_config_id == reports.appscreener:
             report = json.dumps(
                 {
                     "dateTime": results["report"]["dateTime"],

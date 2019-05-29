@@ -1,28 +1,29 @@
-api_key: 
-api_key2: 
+api_key:
+api_key2:
 host: http://localhost:8000
 user: dojo
 scanner_config:
   nessus:
-    id: 1
+    id: 2
     name: "Nessus Scan"
     test_type_id: 4
     id_param_name: "id"
     project_url: "{}/#/scans/reports/{}"
     file_name: "results.nessus"
   appscreener:
-    id: 2
+    id: 1
     name: "Appscreener Scan"
-    test_type_id: 36
+    test_type_id: 5
     id_param_name: "uuid"
     project_url: "{}/detail/{}"
     file_name: "results.json"
   nikto:
     id: 3
     name: "Nikto Scan"
-    test_type_id: 37
+    test_type_id: 39
     id_param_name: ""
     project_url: ""
     file_name: "nikto.xml"
   update_project_days: 20
   unsorted_product_id: 4
+  external_domain_product_id: 10

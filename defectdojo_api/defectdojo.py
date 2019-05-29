@@ -1465,7 +1465,7 @@ class DefectDojoAPI(object):
             params["tool_project_id"] = tool_project_id
 
         if tool_configuration_id:
-            params["tool_configuration_id"] = tool_configuration_id
+            params["tool_configuration"] = tool_configuration_id
 
         if product_id:
             params["product"] = product_id
