@@ -62,17 +62,17 @@ class Connector(object):
                         os.environ["DOJO_USER"],
                         verify_ssl=False,
                     )
-                    self.dd_v2 = defectdojo.DefectDojoAPI(
-                        os.environ["DOJO_HOST"],
-                        os.environ["DOJO_KEY2"],
-                        os.environ["DOJO_USER"],
-                        api_version="v2",
-                        proxies=self.proxies,
-                        verify_ssl=False,
-                    )
-            except FileNotFoundError as fnf_error:
-                print(fnf_error)
-                exit()
-            except ValueError as value_error:
-                print(value_error)
-                exit()
+                self.dd_v2 = defectdojo.DefectDojoAPI(
+                    os.environ["DOJO_HOST"],
+                    os.environ["DOJO_KEY2"],
+                    os.environ["DOJO_USER"],
+                    api_version="v2",
+                    proxies=self.proxies,
+                    verify_ssl=False,
+                )
+        except FileNotFoundError as fnf_error:
+            print(fnf_error)
+            exit()
+        except ValueError as value_error:
+            print(value_error)
+            exit()
