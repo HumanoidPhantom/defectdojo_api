@@ -19,7 +19,7 @@ class Connector(object):
                 # 'http': 'http://127.0.0.1:8080'
             }
 
-            env_keys = ["DOJO_HOST", "DOJO_KEY2", "DOJO_KEY1"]
+            env_keys = ["DOJO_HOST", "DOJO_KEY2", "DOJO_KEY1", "DOJO_USER"]
             for key in env_keys:
                 if key not in os.environ:
                     config_import = True
@@ -51,6 +51,21 @@ class Connector(object):
                         self.config["host"],
                         self.config["api_key2"],
                         self.config["user"],
+                        api_version="v2",
+                        proxies=self.proxies,
+                        verify_ssl=False,
+                    )
+            else:
+                self.dd_v1 = defectdojo.DefectDojoAPI(
+                        os.environ["DOJO_HOST"],
+                        os.environ["DOJO_KEY1"],
+                        os.environ["DOJO_USER"],
+                        verify_ssl=False,
+                    )
+                    self.dd_v2 = defectdojo.DefectDojoAPI(
+                        os.environ["DOJO_HOST"],
+                        os.environ["DOJO_KEY2"],
+                        os.environ["DOJO_USER"],
                         api_version="v2",
                         proxies=self.proxies,
                         verify_ssl=False,
