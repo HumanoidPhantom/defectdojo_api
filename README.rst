@@ -1,7 +1,7 @@
 DefectDojo API
 ==============
 
-This is changed version of `aaronweaver/defectdojo_api <https://github.com/aaronweaver/defectdojo_api>`
+This is changed version of `aaronweaver/defectdojo_api <https://github.com/aaronweaver/defectdojo_api>`_
 
 Tested python version: python 3.6 - 3.7
 
