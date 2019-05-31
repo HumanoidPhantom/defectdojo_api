@@ -18,7 +18,7 @@ CLI Usage
 -----------
 Available options:
 
-```
+'''
 $ python start.py --help
 Usage: start.py [OPTIONS] COMMAND [ARGS]...
 
@@ -34,7 +34,7 @@ Commands:
   test-delete-all       Delete all tests.
   test-delete-findings  Delete findings in test.
   update                Products update.
-```
+'''
 
 Available `update` options:
 ```
