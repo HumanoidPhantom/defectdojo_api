@@ -3,21 +3,34 @@ api_key2:
 host: http://localhost:8000
 user: dojo
 proxies:
-verify_ssl: 
+verify_ssl:
 scanner_config:
+  # For each scanner can be specified following information:
+  # id - id of the scanner in DefectDojo (in [DOJO_HOST]/tool_config)
+  # name - scanner name in DefectDojo. The value taken
+  #        from SCAN_TYPE_CHOICES (in dojo/forms.py)
+  # id_param_name - id parameter name for scan results in the scanner.
+  #                 It can differ in scanners
+  #                 (for ex. "uuid" in Appscreener, "id" in Nessus)
+  # project_url - path to scan results in the scanner.
+  #               {scanner_host} is set from DefectDojo
+  #               tool configuration (for ex.: [DOJO_HOST]/tool_config/[id])
+  #               {id_param_name} is substituted with id_param_name from config
+  # file_name - file name for the uploaded scan results. File extension is important,
+  #            (for ex. if json format is required, the value is set to [anything].json)
   nessus:
     id: 2
     name: "Nessus Scan"
     test_type_id: 4
     id_param_name: "id"
-    project_url: "{}/#/scans/reports/{}"
+    project_url: "{scanner_host}/#/scans/reports/{id_param_name}"
     file_name: "results.nessus"
   appscreener:
     id: 1
     name: "Appscreener Scan"
     test_type_id: 5
     id_param_name: "uuid"
-    project_url: "{}/detail/{}"
+    project_url: "{scanner_host}/detail/{id_param_name}"
     file_name: "results.json"
   nikto:
     id: 3

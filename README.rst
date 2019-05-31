@@ -1,70 +1,61 @@
 DefectDojo API
 ==============
-Tested python version: python 3.6
+This is changed version of `aaronweaver/defectdojo_api <https://github.com/aaronweaver/defectdojo_api>`
+==============
+Tested python version: python 3.6 - 3.7
 
 A Python API wrapper for `DefectDojo <https://github.com/OWASP/django-DefectDojo>`_, an AppSec and Security Vulnerability Management tool.
 
 This package implements API functionality available within Dojo.
 
-Quick Start
+CLI Usage
 -----------
+Available options:
+```
+$ python start.py --help
+Usage: start.py [OPTIONS] COMMAND [ARGS]...
 
-Several quick start options are available:
 
-- Install with pip (recommended): :code:`pip install defectdojo_api`
-- `Download the latest release <https://github.com/aaronweaver/defectdojo_api/releases/latest>`_
-- Clone the repository: :code:`git clone https://github.com/aaronweaver/defectdojo_api`
-- If you are testing the api locally make sure to set the PYTHONPATH. export PYTHONPATH=/path/totheapi/defectdojo_api:$PYTHONPATH
+  CLI for Defect Dojo.
 
-Example
--------
+Options:
+  -c, --config TEXT  Configuration file path. Default is 'config.yaml'
+  --help             Show this message and exit.
 
-.. code-block:: python
+Commands:
+  engagement-delete     Delete engagement.
+  test-delete-all       Delete all tests.
+  test-delete-findings  Delete findings in test.
+  update                Products update.
+```
 
-    # import the package
-    from defectdojo_api import defectdojo
+Available `update` options:
+```
+$ python start.py update --help
 
-    # setup DefectDojo connection information
-    host = 'http://localhost:8000/'
-    api_key = 'your_api_key_from_DefectDojo'
-    user = 'admin'
+Usage: start.py update [OPTIONS]
 
-    # instantiate the DefectDojo api wrapper
-    dd = defectdojo.DefectDojoAPI(host, api_key, user, debug=False)
+  Products update. By default all product will be updated
 
-    # If you need to disable certificate verification, set verify_ssl to False.
-    # dd = defectdojo.DefectDojoAPI(host, api_key, user, verify_ssl=False)
+Options:
+  -t, --type [all|engagement|nikto]
+                                  Update type:
+                                  all (default) - updatel all
+                                  products from Appscreener + Nessus scanners
+                                  engagement - update specific engagement from
+                                  Appscreener + Nessus scanners
+                                  nikto - update
+                                  from nikto scanner
+  -e, --eng_id INTEGER            Engagement ID
+  -f, --file_path TEXT            Path to nikto scan results
+  -d, --domain TEXT               Scanned domain name
+  --help                          Show this message and exit.
+```
 
-    # Create a product
-    prod_type = 1 #1 - Research and Development, product type
-    product = dd.create_product("API Product Test", "This is a detailed product description.", prod_type)
-
-    if product.success:
-        # Get the product id
-        product_id = product.id()
-        print "Product successfully created with an id: " + str(product_id)
-
-    #List Products
-    products = dd.list_products()
-
-    if products.success:
-        print(products.data_json(pretty=True))  # Decoded JSON object
-
-        for product in products.data["objects"]:
-            print(product['name'])  # Print the name of each product
-    else:
-        print products.message
-
-More examples `available <https://github.com/aaronweaver/defectdojo_api/tree/master/examples>`_ on Github.
-
-Supporting information for each method available can be found in the `documentation <https://defectdojo-api.readthedocs.io>`_.
-
-Bugs and Feature Requests
--------------------------
-
-Have a bug or a feature request? Please first search for existing and closed issues. If your problem or idea is not addressed yet, `please open a new issue <https://github.com/aaronweaver/defectdojo_api/issues/new>`_.
-
-Copyright and License
----------------------
-
-- `Licensed under MIT <https://github.com/aaronweaver/defectdojo_api/blob/master/LICENSE.txt>`_.
+Usage As A Package
+-----------
+```
+from defectdojo_api import uploader
+upload = uploader.Uploader(config=config_path)
+upload.update_all()
+```

@@ -228,8 +228,8 @@ class Uploader(object):
                 product=engagement["product"],
                 tool_project_id=project_id,
                 setting_url=scanner["project_url"].format(
-                    tool_base_url,
-                    project_id,
+                    scanner_host=tool_base_url,
+                    id_param_name=project_id,
                 ) if project_id else "",
             ).data
 

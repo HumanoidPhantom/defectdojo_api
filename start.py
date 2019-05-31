@@ -33,6 +33,7 @@ def main(upload, config):
 @click.option("--file_path", "-f", help="Path to nikto scan results", type=str)
 @click.option("--domain", "-d", help="Scanned domain name", type=str)
 def update(upload, type, eng_id, file_path, domain):
+    """Products update."""
     if type == 'all':
         upload.update_all()
     elif type == 'engagement':
@@ -87,7 +88,7 @@ def test_delete_all(upload):
 @click.pass_obj
 @click.option("--test_id", "-t", help="Test ID", type=int)
 def test_delete_findings(upload, test_id):
-    """Delete all findings in test."""
+    """Delete findings in test."""
     check_delete()
     upload.test_delete_findings(test_id)
 
