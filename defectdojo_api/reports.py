@@ -4,59 +4,15 @@ requests.packages.urllib3.disable_warnings()
 from datetime import datetime, timedelta, date
 import time
 import json
-from yaml import load
 
-try:
-    from yaml import CLoader as Loader
-except ImportError:
-    from yaml import Loader
-
-config = None
-with open("config.yaml", "r") as config_file:
-    config = load(config_file, Loader=Loader)
-    all_keys_in_config = [
-        item in config and True for item in ["scanner_config"]
-    ]
-    if False in all_keys_in_config:
-        raise ValueError("Add scanners config info in config.yaml.")
-
-UPDATE_PROJECT_DAYS = config["scanner_config"]["update_project_days"]
-UNSORTED_PRODUCT_ID = config["scanner_config"]["unsorted_product_id"]
-EXTERNAL_PRODUCT_ID = config["scanner_config"]["external_domain_product_id"]
-
+update_project_days = None
+unsorted_product_id = None
+external_product_id = None
 # TODO this info should be stored in DD itself
 scanners = {}
 nessus = None
 appscreener = None
 nikto = None
-if "nessus" in config["scanner_config"]:
-    nessus = config["scanner_config"]["nessus"]["id"]
-    scanners[nessus] = {
-        "name": config["scanner_config"]["nessus"]["name"],
-        "test_type_id": config["scanner_config"]["nessus"]["test_type_id"],
-        "id": config["scanner_config"]["nessus"]["id_param_name"],
-        "project_url": config["scanner_config"]["nessus"]["project_url"],
-        "file_name": config["scanner_config"]["nessus"]["file_name"],
-    }
-if "appscreener" in config["scanner_config"]:
-    appscreener = config["scanner_config"]["appscreener"]["id"]
-    scanners[appscreener] = {
-        "name": config["scanner_config"]["appscreener"]["name"],
-        "test_type_id": config["scanner_config"]["appscreener"]["test_type_id"],
-        "id": config["scanner_config"]["appscreener"]["id_param_name"],
-        "project_url": config["scanner_config"]["appscreener"]["project_url"],
-        "file_name": config["scanner_config"]["appscreener"]["file_name"],
-    }
-if "nikto" in config["scanner_config"]:
-    nikto = config["scanner_config"]["nikto"]["id"]
-    scanners[nikto] = {
-        "name": config["scanner_config"]["nikto"]["name"],
-        "test_type_id": config["scanner_config"]["nikto"]["test_type_id"],
-        "id": config["scanner_config"]["nikto"]["id_param_name"],
-        "project_url": config["scanner_config"]["nikto"]["project_url"],
-        "file_name": config["scanner_config"]["nikto"]["file_name"],
-    }
-
 
 def get_scanner_datetime(project, scanner_key, from_engagement=False):
     last_scan_id = ""
@@ -228,7 +184,7 @@ class Nessus(Scanner):
         return report
 
     def get_last_projects(self):
-        from_day = (date.today() - timedelta(UPDATE_PROJECT_DAYS)).strftime(
+        from_day = (date.today() - timedelta(update_project_days)).strftime(
             "%s"
         )
         upd_projects = self._request(
@@ -312,7 +268,7 @@ class Appscreener(Scanner):
                     limit,
                     (
                         current_date
-                        - timedelta(days=(UPDATE_PROJECT_DAYS - 1))
+                        - timedelta(days=(update_project_days - 1))
                     ).strftime("%m/%d/%Y"),
                     current_date.strftime("%m/%d/%Y"),
                 ),

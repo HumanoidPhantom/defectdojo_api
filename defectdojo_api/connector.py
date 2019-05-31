@@ -10,7 +10,7 @@ except ImportError:
 class Connector(object):
     """Connector to the Defect Dojo API."""
 
-    def __init__(self):
+    def __init__(self, config_path):
         """Initialize connector."""
         try:
             self.proxies = {
@@ -18,7 +18,7 @@ class Connector(object):
                 # 'http': 'http://127.0.0.1:8080'
             }
 
-            with open("config.yaml", "r") as config_file:
+            with open(config_path, "r") as config_file:
                 self.config = load(config_file, Loader=Loader)
                 all_keys_in_config = [
                     item in self.config and True
