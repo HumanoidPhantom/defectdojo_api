@@ -1,9 +1,9 @@
 DefectDojo API
 ==============
 
-This is changed version of `aaronweaver/defectdojo_api <https://github.com/aaronweaver/defectdojo_api>`_
+This is changed version of `aaronweaver/defectdojo_api <https://github.com/aaronweaver/defectdojo_api>`_.
 
-Tested python version: python 3.6 - 3.7
+Tested python version: python 3.6 - 3.7.
 
 A Python API wrapper for `DefectDojo <https://github.com/OWASP/django-DefectDojo>`_, an AppSec and Security Vulnerability Management tool.
 
