@@ -14,7 +14,7 @@ Usage
 First of all, configuration file (config.example.yaml) should be changed
 according to your DefectDojo installation.
 
-CLI Usage
+CLI usage
 -----------
 Available options:
 ```
@@ -58,7 +58,7 @@ Options:
   --help                          Show this message and exit.
 ```
 
-Usage As A Package
+Usage as a package
 -----------
 ```
 from defectdojo_api import uploader
