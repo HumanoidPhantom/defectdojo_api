@@ -220,7 +220,6 @@ class Uploader(object):
             tool_base_url = tool_cfg['configuration_url'].replace(
                 "/app/api/v1", ""
             )
-
             tool = self.dc.dd_v2.create_tool_product(
                 name=tool_name if tool_name else scanner_name,
                 tool_configuration=tool_cfg["id"],
