@@ -17,6 +17,7 @@ according to your DefectDojo installation.
 CLI Usage
 -----------
 Available options:
+
 ```
 $ python start.py --help
 Usage: start.py [OPTIONS] COMMAND [ARGS]...
