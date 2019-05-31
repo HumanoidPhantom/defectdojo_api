@@ -19,8 +19,9 @@ class Connector(object):
                 # 'http': 'http://127.0.0.1:8080'
             }
             config_import = False
-
+            verify_ssl = True
             env_keys = ["DOJO_HOST", "DOJO_KEY2", "DOJO_KEY1", "DOJO_USER"]
+            auth_data_config = ["host", "api_key", "api_key2", "user"]
             for key in env_keys:
                 if key not in os.environ:
                     config_import = True
@@ -28,24 +29,31 @@ class Connector(object):
 
             with open(config_path, "r") as config_file:
                 self.config = load(config_file, Loader=Loader)
-                all_keys_in_config = [
-                    item in self.config and True
-                    for item in ["host", "api_key", "api_key2", "user"]
-                ]
+                if "proxies" in self.config and self.config["proxies"]:
+                    self.proxies = self.config["proxies"]
+                if "verify_ssl" in self.config and \
+                        self.config["verify_ssl"] != None:
+                    verify_ssl = self.config["verify_ssl"]
 
-                if False in all_keys_in_config:
-                    raise ValueError(
-                        "Not all required values in config.yaml. \
-                    Check that {host}, {user}, {api_key} and {api_key2} are \
-                    present."
-                    )
                 if config_import:
+                    all_auth_keys_in_config = [
+                        item in self.config and True
+                        for item in auth_data_config
+                    ]
+
+                    if False in all_auth_keys_in_config:
+                        raise ValueError(
+                            "Not all required auth data is in config.yaml/env."
+                            "Check if {host}, {user}, {api_key} and {api_key2}"
+                            "present."
+                        )
                     # instantiate the DefectDojo api wrapper
                     self.dd_v1 = defectdojo.DefectDojoAPI(
                         self.config["host"],
                         self.config["api_key"],
                         self.config["user"],
-                        verify_ssl=False,
+                        proxies=self.proxies,
+                        verify_ssl=verify_ssl,
                     )
                     self.dd_v2 = defectdojo.DefectDojoAPI(
                         self.config["host"],
@@ -53,14 +61,15 @@ class Connector(object):
                         self.config["user"],
                         api_version="v2",
                         proxies=self.proxies,
-                        verify_ssl=False,
+                        verify_ssl=verify_ssl,
                     )
                 else:
                     self.dd_v1 = defectdojo.DefectDojoAPI(
                             os.environ["DOJO_HOST"],
                             os.environ["DOJO_KEY1"],
                             os.environ["DOJO_USER"],
-                            verify_ssl=False,
+                            proxies=self.proxies,
+                            verify_ssl=verify_ssl,
                         )
                     self.dd_v2 = defectdojo.DefectDojoAPI(
                         os.environ["DOJO_HOST"],
@@ -68,7 +77,7 @@ class Connector(object):
                         os.environ["DOJO_USER"],
                         api_version="v2",
                         proxies=self.proxies,
-                        verify_ssl=False,
+                        verify_ssl=verify_ssl,
                     )
         except FileNotFoundError as fnf_error:
             print(fnf_error)
