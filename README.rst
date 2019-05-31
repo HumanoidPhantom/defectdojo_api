@@ -8,6 +8,11 @@ A Python API wrapper for `DefectDojo <https://github.com/OWASP/django-DefectDojo
 
 This package implements API functionality available within Dojo.
 
+Usage
+-----------
+First of all, configuration file (config.example.yaml) should be changed
+according to your DefectDojo installation.
+
 CLI Usage
 -----------
 Available options:
